@@ -50,6 +50,34 @@ class iLORedfishUtils(RedfishUtils):
         result["ret"] = True
         return result
 
+    def get_service_bios_attributes(self, module):
+        # Get system details
+        result = {}
+        response = self.get_request(
+            self.root_uri + self.service_root + "systems/1/"
+        )
+        if not response["ret"]:
+            return response
+
+        if "Bios" not in response["data"]:
+            module.fail_json(msg="Getting BIOS URI Failed, Key 'Bios' "
+                                 "not found in %s response: %s"
+                                 % (self.root_uri + self.service_root, response["data"]))
+
+        bios_uri = response["data"]["Bios"]["@odata.id"]
+        # Get service settings
+        service_uri = bios_uri + "service/settings/"
+        response = self.get_request(self.root_uri + service_uri)
+        # Check if service API doesn't support
+        if not response["ret"]:
+            service_uri = bios_uri + "oem/hpe/service/settings/"
+            response = self.get_request(self.root_uri + service_uri)
+            if not response["ret"]:
+                return response
+        result["ret"] = True
+        result["msg"] = response["data"]["Attributes"]
+        return result
+
     def set_ntp_server(self, mgr_attributes):
         result = {}
         setkey = mgr_attributes['mgr_attr_name']

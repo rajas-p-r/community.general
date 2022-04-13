@@ -6,3 +6,15 @@
     username: "{{ username }}"
     password: "{{ password }}"
   register: result_sessions
+
+#----------------------------------------------------------
+
+- name: Get iLO Sessions
+  community.general.ilo_redfish_info:
+    category: Systems
+    command: GetServiceBiosAttributes
+    baseuri: "{{ baseuri }}"
+    username: "{{ username }}"
+    password: "{{ password }}"
+  register: result_bios_attributes
+

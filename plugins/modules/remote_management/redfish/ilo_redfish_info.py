@@ -62,6 +62,14 @@ EXAMPLES = '''
       username: "{{ username }}"
       password: "{{ password }}"
     register: result_sessions
+  - name: Get iLO Sessions
+    community.general.ilo_redfish_info:
+      category: Systems
+      command: GetServiceBiosAttributes
+      baseuri: "{{ baseuri }}"
+      username: "{{ username }}"
+      password: "{{ password }}"
+    register: result_bios_attributes
 '''
 
 RETURN = '''
@@ -97,7 +105,7 @@ ilo_redfish_info:
 '''
 
 CATEGORY_COMMANDS_ALL = {
-    "Sessions": ["GetiLOSessions"]
+        "Sessions": ["GetiLOSessions"], "Systems": ["GetServiceBiosAttributes"]
 }
 
 CATEGORY_COMMANDS_DEFAULT = {
@@ -178,6 +186,10 @@ def main():
             for command in command_list:
                 if command == "GetiLOSessions":
                     result[command] = rf_utils.get_ilo_sessions()
+        elif category == "Systems":
+            for command in command_list:
+                if command == "GetServiceBiosAttributes":
+                    result[command] = rf_utils.get_service_bios_attributes(module)
 
     module.exit_json(ilo_redfish_info=result)
 
